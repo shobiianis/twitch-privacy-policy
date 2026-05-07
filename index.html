@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Followers Viewer - Chrome Extension</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header Navigation */
+        header {
+            background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #9146ff;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            margin-left: 1rem;
+        }
+
+        .cta-button.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #9146ff;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
+            color: white;
+            border-radius: 50%;
+            line-height: 60px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .step p {
+            color: #666;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 5rem 2rem;
+            background: #f0e6ff;
+        }
+
+        .benefits-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .benefits h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .benefits ul {
+            list-style: none;
+        }
+
+        .benefits li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .benefits li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #9146ff;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .benefits-image {
+            background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
+            padding: 3rem;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .benefits-image p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Privacy Section */
+        .privacy {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .privacy-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .privacy-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            border-left: 4px solid #9146ff;
+        }
+
+        .privacy-card h3 {
+            color: #9146ff;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 5rem 2rem;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .install-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 2rem;
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(145, 70, 255, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #222;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            margin: 1.5rem 0;
+        }
+
+        .footer-links a {
+            color: #9146ff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #b366ff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #444;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .cta-button {
+                display: block;
+                margin: 0.5rem auto;
+            }
+
+            .cta-button.secondary {
+                margin-left: 0;
+            }
+
+            .benefits-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <header>
+        <nav>
+            <div class="logo">👥 Twitch Followers Viewer</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>View Your Twitch Followers Instantly</h1>
+            <p>A powerful Chrome extension to easily view and manage your Twitch followers directly on your profile page</p>
+            <div>
+                <button class="cta-button" onclick="document.getElementById('installation').scrollIntoView({behavior: 'smooth'})">
+                    Get Started
+                </button>
+                <a href="#privacy" class="cta-button secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <h3>View Your Followers</h3>
+                    <p>See a comprehensive list of all your Twitch followers with detailed information directly on your profile</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Updates</h3>
+                    <p>Get instant access to your follower data using the Twitch API with your own credentials</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>100% Private</h3>
+                    <p>Your data stays on your device. No tracking, no external storage, no sharing with third parties</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Easy Setup</h3>
+                    <p>Configure your Twitch API credentials once and start viewing followers instantly</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <h3>Seamless Integration</h3>
+                    <p>Works directly within Twitch pages - no redirects or complicated workflows needed</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Lightweight</h3>
+                    <p>Minimal resource usage - runs smoothly without slowing down your browser</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Install Extension</h3>
+                    <p>Add the extension from the Chrome Web Store</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Add Your Credentials</h3>
+                    <p>Enter your Twitch Client ID and Client Secret</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>View Followers</h3>
+                    <p>Visit your Twitch profile and see your followers instantly</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Manage Data</h3>
+                    <p>All your data is stored locally for your privacy</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="container">
+            <div class="benefits-content">
+                <div>
+                    <h2>Why Use Twitch Followers Viewer?</h2>
+                    <ul>
+                        <li>See all your followers in one place</li>
+                        <li>No data collection or tracking</li>
+                        <li>Full control with your own API credentials</li>
+                        <li>Works offline with cached data</li>
+                        <li>Fast and responsive interface</li>
+                        <li>Regular updates and improvements</li>
+                        <li>Free to use</li>
+                        <li>Active developer support</li>
+                    </ul>
+                </div>
+                <div class="benefits-image">
+                    <p>🎮 Perfect for streamers, content creators, and Twitch community managers</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy Section -->
+    <section class="privacy" id="privacy">
+        <div class="container">
+            <h2 class="section-title">Privacy & Security</h2>
+            <div class="privacy-cards">
+                <div class="privacy-card">
+                    <h3>🔐 Secure by Design</h3>
+                    <p>Your Twitch credentials are stored locally on your device only. We never transmit or store them on external servers.</p>
+                </div>
+                <div class="privacy-card">
+                    <h3>📊 No Data Collection</h3>
+                    <p>We don't collect, track, or share any personal information, browsing history, or usage data with anyone.</p>
+                </div>
+                <div class="privacy-card">
+                    <h3>🛡️ Local Storage Only</h3>
+                    <p>All extension data is stored locally within your browser. You have full control and can delete it anytime.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <p style="color: #666; font-size: 1.1rem;">
+                    For our complete Privacy Policy, <a href="privacy-policy.html" style="color: #9146ff; text-decoration: none; font-weight: bold;">click here</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section class="installation" id="installation">
+        <div class="container">
+            <h2 class="section-title">Ready to Get Started?</h2>
+            <p style="font-size: 1.2rem; color: #666; margin-bottom: 1rem;">
+                Install the Twitch Followers Viewer extension today and start viewing your followers instantly
+            </p>
+            <a href="https://chrome.google.com/webstore" target="_blank" class="install-button">
+                📥 Add to Chrome
+            </a>
+            <p style="color: #999; margin-top: 2rem; font-size: 0.95rem;">
+                Available on Chrome Web Store • Free to use • No ads or tracking
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>Twitch Followers Viewer</h3>
+            <div class="footer-links">
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="https://chrome.google.com/webstore" target="_blank">Chrome Web Store</a>
+                <a href="https://www.twitch.tv" target="_blank">Twitch</a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Twitch Followers Viewer. All rights reserved.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                    This extension is not affiliated with Twitch Interactive, Inc.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
